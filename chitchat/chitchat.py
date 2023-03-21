@@ -1,7 +1,11 @@
-import chitchat_dataset as ccc
+from transformers import BlenderbotTokenizer, BlenderbotForConditionalGeneration
 
-dataset = ccc.Dataset()
+mname = "facebook/blenderbot-400M-distill"
+model = BlenderbotForConditionalGeneration.from_pretrained(mname)
+tokenizer = BlenderbotTokenizer.from_pretrained(mname)
 
-# Dataset is a subclass of dict()
-for convo_id, convo in dataset.items():
-    print(convo_id, convo)
+def chitchat(prompt):
+    inputs = tokenizer([prompt], return_tensors="pt")
+    reply_ids = model.generate(**inputs)
+    print(tokenizer.batch_decode(reply_ids)[0].replace("<s>","").replace("</s>","").strip())
+    return tokenizer.batch_decode(reply_ids)[0].replace("<s>","").replace("</s>","").strip()
