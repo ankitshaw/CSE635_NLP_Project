@@ -1,5 +1,6 @@
 import streamlit as st
 from streamlit_chat import message
+from chitchat.chitchat import chitchat
 
 if 'response' not in st.session_state:
     st.session_state['response'] = []
@@ -8,7 +9,9 @@ if 'input' not in st.session_state:
 
 def get_response(prompt):
     #Call the dialog manager api to get the response for the prompt
-    message=prompt + ": Reply"
+    # message=prompt + ": Reply"
+    #dialogue manager rule or model get the prompt and call individual generator
+    message = chitchat(prompt) #directly calling chitchat for testing
     return message
 
 st.title("Wannabe Bot")
