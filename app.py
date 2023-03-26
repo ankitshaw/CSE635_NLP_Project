@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_chat import message
 from chitchat.chitchat import chitchat
+import intent_classifier
 
 if 'response' not in st.session_state:
     st.session_state['response'] = []
@@ -11,8 +12,12 @@ def get_response(prompt):
     #Call the dialog manager api to get the response for the prompt
     # message=prompt + ": Reply"
     #dialogue manager rule or model get the prompt and call individual generator
-    message = chitchat(prompt) #directly calling chitchat for testing
-    return message
+    if intent_classifier.classify(prompt=prompt) == "chitchat":
+        message = chitchat(prompt) #directly calling chitchat for testing
+    else:
+        #perform entity recoq, linker, find relevant facts, perform paraphrasing and return
+        # return message
+        pass
 
 st.title("Wannabe Bot")
 user_input=st.text_input("You:",key='user')
