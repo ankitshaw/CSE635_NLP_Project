@@ -5,9 +5,10 @@ import tensorflow as tf
 from sklearn import preprocessing
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
+from nlp_pipeline import get_nel
 
 tfds.disable_progress_bar()
-model = None
+model = tf.keras.models.load_model("models/model_intent_classify")
 
 def load_data(filename):
     # Load the CSV file into a Pandas DataFrame
@@ -110,11 +111,14 @@ def get_model():
         model = tf.keras.models.load_model("models/model_intent_classify")
     return model
    
-def classify(prompt):
+def classify(prompt, topics):
     model = get_model()
     predictions = model.predict(np.array([prompt]))
     print(predictions[0][0])
-    if predictions[0][0] < 0:
+    topic = False
+    if topics != 0:
+        topic = True
+    if predictions[0][0] < 0 and topic==0:
         return "chitchat"
     else:
         return "topic"
