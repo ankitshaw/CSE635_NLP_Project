@@ -17,3 +17,4 @@ wikipedia==1.4.0
 torchvision==0.15.1
 torch==2.0.0
 keras==2.11.0
+spacy-entity-linker==1.0.3
