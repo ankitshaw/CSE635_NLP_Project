@@ -18,10 +18,12 @@ def get_response(prompt):
     #dialogue manager rule or model get the prompt and call individual generator
     links = get_nel(prompt)
     if intent_classifier.classify(prompt=prompt, topics=len(links)) == "chitchat":
+        print("doing chitchat")
         message = chitchat(prompt) #directly calling chitchat for testing
     else:
         #perform entity recoq, linker, find relevant facts, perform paraphrasing and return
         # return message
+        print("doing wiki")
         message = topicBot.generator(prompt, links)
         if message == "":
             message = chitchat(prompt)

@@ -10,6 +10,7 @@ from nlp_pipeline import get_nel
 tfds.disable_progress_bar()
 model = tf.keras.models.load_model("models/model_intent_classify")
 
+
 def load_data(filename):
     # Load the CSV file into a Pandas DataFrame
     data = pd.read_csv(filename)
@@ -30,6 +31,7 @@ def load_data(filename):
 
     return data
 
+
 def preprocess_data(data, vocab_size=1000, max_length=200):
     df = data.copy()
 
@@ -38,14 +40,17 @@ def preprocess_data(data, vocab_size=1000, max_length=200):
     test_df = df.drop(train_df.index)
 
     # Create a TensorFlow Dataset from the training and testing sets
-    train_dataset = tf.data.Dataset.from_tensor_slices((train_df['parent'].values, train_df['label'].values))
-    test_dataset = tf.data.Dataset.from_tensor_slices((test_df['parent'].values, test_df['label'].values))
+    train_dataset = tf.data.Dataset.from_tensor_slices(
+        (train_df['parent'].values, train_df['label'].values))
+    test_dataset = tf.data.Dataset.from_tensor_slices(
+        (test_df['parent'].values, test_df['label'].values))
 
     BUFFER_SIZE = 10000
     BATCH_SIZE = 64
 
     # Shuffle and batch the training dataset
-    train_dataset = train_dataset.shuffle(BUFFER_SIZE).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
+    train_dataset = train_dataset.shuffle(BUFFER_SIZE).batch(
+        BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
 
     # Batch the testing dataset
     test_dataset = test_dataset.batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
@@ -59,19 +64,23 @@ def preprocess_data(data, vocab_size=1000, max_length=200):
 
     return train_dataset, test_dataset, encoder
 
+
 def build_model(encoder, vocab_size, embedding_dim=64, lstm_units=64):
     # Build the model architecture
     model = tf.keras.Sequential([
         encoder,
-        tf.keras.layers.Embedding(len(encoder.get_vocabulary()), 64, mask_zero=True),
-        tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64,  return_sequences=True)),
+        tf.keras.layers.Embedding(
+            len(encoder.get_vocabulary()), 64, mask_zero=True),
+        tf.keras.layers.Bidirectional(
+            tf.keras.layers.LSTM(64,  return_sequences=True)),
         tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32)),
-            tf.keras.layers.Dense(64, activation='relu'),
+        tf.keras.layers.Dense(64, activation='relu'),
         tf.keras.layers.Dropout(0.5),
         tf.keras.layers.Dense(1)
     ])
     model.summary()
     return model
+
 
 def train_model(model, train_dataset, test_dataset, epochs=5):
     # Compile the model
@@ -90,13 +99,15 @@ def train_model(model, train_dataset, test_dataset, epochs=5):
     )
     model.save('/models/model_intent_classifier')
     return history, model
-    
+
+
 def predict_text(model, encoder, text):
     # Make prediction on input text
     prediction = model.predict(np.array([text]))
     proba = tf.sigmoid(prediction).numpy()[0][0]
-    label = 'chitchat' if proba < 0.5 else 'reddit'
+    label = 'chitchat' if proba < 0 else 'reddit'
     return {'intent': label, 'confidence': round(proba, 3)}
+
 
 def plot_history(history):
     # Plot the training and validation accuracy and loss over time
@@ -105,20 +116,22 @@ def plot_history(history):
     plt.plot(history.history['accuracy'])
     plt.plot(history.history['val_accuracy'])
 
+
 def get_model():
     global model
     if model == None:
         model = tf.keras.models.load_model("models/model_intent_classify")
     return model
-   
+
+
 def classify(prompt, topics):
     model = get_model()
     predictions = model.predict(np.array([prompt]))
-    print(predictions[0][0])
+    print("predict score", predictions[0][0])
     topic = False
     if topics != 0:
         topic = True
-    if predictions[0][0] < 0 and topic==0:
+    if predictions[0][0] < 0 and topic == 0:
         return "chitchat"
     else:
         return "topic"
