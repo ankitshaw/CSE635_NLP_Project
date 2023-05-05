@@ -4,6 +4,7 @@ from chitchat.chitchat import chitchat
 import intent_classifier
 from nlp_pipeline import get_nel
 from wikibot.wiki_ir import TopicBot
+from wikibot.wikibot import get_response
 
 from PIL import Image
 
@@ -28,11 +29,11 @@ def get_response(prompt):
         message = chitchat(prompt) #directly calling chitchat for testing
     else:
         #perform entity recoq, linker, find relevant facts, perform paraphrasing and return
-        # return message
         print("doing wiki")
-        message = topicBot.generator(prompt, links)
-        if message == "":
-            message = chitchat(prompt)
+        # message = topicBot.generator(prompt, links)
+        message = get_response(prompt)
+        # if message == "":
+        #     message = chitchat(prompt)
 
     return message
 
