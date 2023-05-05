@@ -127,4 +127,4 @@ class TopicBot():
         return [self.lemmatizer.lemmatize(w) for w in words]
 
 
-tc = TopicBot()
+# tc = TopicBot()

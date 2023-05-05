@@ -5,6 +5,12 @@ import intent_classifier
 from nlp_pipeline import get_nel
 from wikibot.wiki_ir import TopicBot
 
+from PIL import Image
+
+image = Image.open('img-removebg-preview.png')
+
+st.image(image,width=300)
+
 topicBot = TopicBot()
 
 if 'response' not in st.session_state:
@@ -30,11 +36,18 @@ def get_response(prompt):
 
     return message
 
-st.title("Wannabe Bot")
+st.title("BabbleGo")
 user_input=st.text_input("You:",key='user')
 
 if user_input:
+    tryy = 1
+    # output = ""
+    # try:
     output=get_response(user_input)
+    # except:
+        # output="I didn't got that. I am sorry"
+
+            
     st.session_state['input'].append(user_input)
     st.session_state['response'].append(output)
 
