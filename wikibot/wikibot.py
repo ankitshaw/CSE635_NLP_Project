@@ -3,6 +3,11 @@ from haystack.utils import print_documents
 from haystack.pipelines import DocumentSearchPipeline
 from haystack.nodes import Seq2SeqGenerator
 from haystack.pipelines import GenerativeQAPipeline
+import os
+from haystack.document_stores import ElasticsearchDocumentStore
+
+# Get the host where Elasticsearch is running, default to localhost
+# host = os.environ.get("ELASTICSEARCH_HOST", "localhost")
 
 document_store = get_document_store()
 retriever = get_retriever(document_store=document_store, type="embed")
@@ -10,7 +15,7 @@ generator = Seq2SeqGenerator(model_name_or_path="vblagoje/bart_lfqa")
 pipe = GenerativeQAPipeline(generator, retriever)
 
 
-def get_response(query):
+def get_wiki_response(query):
     result = pipe.run(
         query=query, params={"Retriever": {"top_k": 3}}
     )
