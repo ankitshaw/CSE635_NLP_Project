@@ -18,3 +18,6 @@ torchvision==0.15.1
 torch==2.0.0
 keras==2.11.0
 spacy-entity-linker==1.0.3
+watchdog==3.0.0
+farm-haystack==1.16.1
+elasticsearch==7.17.9

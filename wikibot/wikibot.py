@@ -1,4 +1,4 @@
-from util import get_document_store, get_retriever
+from .util import get_document_store, get_retriever
 from haystack.utils import print_documents
 from haystack.pipelines import DocumentSearchPipeline
 from haystack.nodes import Seq2SeqGenerator
