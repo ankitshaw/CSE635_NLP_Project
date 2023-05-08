@@ -78,7 +78,8 @@ def prob_to_class(x):
 
 def classify(user_input):
     global loaded_model
-    user_input = re.sub(r'[^\w\s\?]+', '', user_input)
+    user_input = re.sub(r'[^\w\s]+', '', user_input)
+    print("user_input: ",user_input)
     if loaded_model == None:
        loaded_model = load_trained_model(path_to_model, model, device)
     print("Predicting on test data...")
