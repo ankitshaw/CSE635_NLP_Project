@@ -19,6 +19,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Load the tokenizer
 tokenizer = AutoTokenizer.from_pretrained("albert-base-v2")
 model = AlbertForSequenceClassification.from_pretrained('albert-base-v2').to(device)
+loaded_model = None
 
 def preprocess(input_text):
   # Tokenize the input text and convert to PyTorch tensors
@@ -76,7 +77,10 @@ def prob_to_class(x):
 
 
 def classify(user_input):
-    loaded_model = load_trained_model(path_to_model, model, device)
+    global loaded_model
+    user_input = re.sub(r'[^\w\s\?]+', '', user_input)
+    if loaded_model == None:
+       loaded_model = load_trained_model(path_to_model, model, device)
     print("Predicting on test data...")
     prediction_prob = test_prediction(net=loaded_model, device=device, dataloader=preprocess(user_input))
     class_predicted = prob_to_class(prediction_prob)
@@ -84,13 +88,14 @@ def classify(user_input):
     if class_predicted == 0:
         return "chitchat"
     else:
-        return "Information Reterival"
+        return "topic"
 
-input = "I like beaches"
 
-# Remove all non-alphanumeric characters except for whitespace and question marks
-cleaned_string = re.sub(r'[^\w\s\?]+', '', input)
-# print("cleaned input:", cleaned_string)
+# input = "I like beaches"
 
-input = cleaned_string
-print("user intent is: ", classify(input))
+# # Remove all non-alphanumeric characters except for whitespace and question marks
+
+# # print("cleaned input:", cleaned_string)
+
+# input = cleaned_string
+# print("user intent is: ", classify(input))

@@ -5,6 +5,7 @@ import intent_classifier
 from nlp_pipeline import get_nel
 from wikibot.wiki_ir import TopicBot
 import evaluate
+from tqdm import tqdm
 
 import json
 
@@ -67,14 +68,11 @@ def squad ():
 def bleu_inference():
     import pandas as pd
     count = 0
-    df = pd.read_csv("chitchat/data2.csv")
+    df = pd.read_csv("chitchat/data_chitchat.csv")
     bot_out = []
-    for index, row in df.iterrows():
+    for index, row in tqdm(df.iterrows()):
         count += 1
-        if count%50 != 0:
-            # print(count)
-            bot_out.append("")
-            continue
+        out = ""
         try:
             out = get_response(row['in'])
         except:
@@ -91,7 +89,7 @@ def bleu_inference():
 def bleu():
     import pandas as pd
     bleu = evaluate.load("bleu")
-    df = pd.read_csv("chitchat/data2.csv")
+    df = pd.read_csv("chitchat/data_chitchat.csv")
     bot_out = []
     out = []
     for index, row in df.iterrows():
@@ -102,4 +100,4 @@ def bleu():
     results = bleu.compute(predictions=bot_out,references=out)
     print(results)
 
-bleu()
+bleu_inference()

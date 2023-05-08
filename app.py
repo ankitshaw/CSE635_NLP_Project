@@ -5,6 +5,7 @@ import intent_classifier
 from nlp_pipeline import get_nel
 # from wikibot.wiki_ir import TopicBot
 from wikibot.wikibot import get_wiki_response
+import inference_intent_classifier_trained_albert
 
 from PIL import Image
 
@@ -24,7 +25,7 @@ def get_response(prompt):
     # message=prompt + ": Reply"
     #dialogue manager rule or model get the prompt and call individual generator
     # links = get_nel(prompt)
-    if intent_classifier.classify(prompt=prompt, topics=1) == "chitchat":
+    if inference_intent_classifier_trained_albert.classify(prompt) == "chitchat":
         print("doing chitchat")
         message = chitchat(prompt) #directly calling chitchat for testing
     else:
