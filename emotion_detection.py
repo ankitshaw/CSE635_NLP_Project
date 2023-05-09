@@ -2,11 +2,13 @@ from transformers import pipeline, set_seed
 import time
 import torch
 
+# , use_auth_token="<your_token_here>"
+
 # Set up the device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Initialize the pipeline with batch_size=8
-classifier = pipeline("text-classification", model='bhadresh-savani/albert-base-v2-emotion', return_all_scores=True, device=device, batch_size=1)
+classifier = pipeline("text-classification", model='j-hartmann/emotion-english-distilroberta-base', return_all_scores=True, device=device, batch_size=1)
 
 # Set a seed for reproducibility
 set_seed(42)
@@ -31,5 +33,3 @@ def detect_emotion(input_text):
     max_score = max_score_label_dict['score']
     print(f"Label with maximum score: {max_score_label} (Score: {max_score:.4f})")
     return max_score_label, max_score
-    # end_time = time.time()
-    # print(f"Time taken: {end_time - start_time:.4f} seconds")

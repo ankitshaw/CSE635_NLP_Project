@@ -1,22 +1,25 @@
 # -*- coding: utf-8 -*-
-from transformers import AlbertForSequenceClassification, AdamW, AutoTokenizer
 import torch
 import pandas as pd
 from torch.utils.data import TensorDataset, random_split, DataLoader, RandomSampler, SequentialSampler
-from sklearn.model_selection import train_test_split
 from tqdm import tqdm, trange
 import numpy as np
 import re
 
-# def __init__():
-path_to_model = 'models/albert_model_intent_classification.pt'
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # Set up the device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Load the tokenizer
-tokenizer = AutoTokenizer.from_pretrained("albert-base-v2")
-model = AlbertForSequenceClassification.from_pretrained('albert-base-v2').to(device)
+from load_models import AlbertModel
+
+albert_model = AlbertModel()
+model = albert_model.model_albert
+tokenizer = albert_model.tokenizer
+
+# def __init__():
+path_to_model = 'models/albert_model_intent_classification.pt'
 loaded_model = None
 
 def preprocess(input_text):
@@ -73,7 +76,6 @@ def prob_to_class(x):
   class_x = x.index(max(x))
   return class_x
 
-
 def classify(user_input):
     global loaded_model
     user_input = re.sub(r'[^\w\s]+', '', user_input)
@@ -88,3 +90,6 @@ def classify(user_input):
         return "chitchat"
     else:
         return "topic"
+
+# input = "How are you doing?"
+# print(classify(input))
