@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-"""inference_intent_classifier_trained_albert.ipynb
-"""
 from transformers import AlbertForSequenceClassification, AdamW, AutoTokenizer
 import torch
 import pandas as pd
@@ -90,13 +88,3 @@ def classify(user_input):
         return "chitchat"
     else:
         return "topic"
-
-
-# input = "I like beaches"
-
-# # Remove all non-alphanumeric characters except for whitespace and question marks
-
-# # print("cleaned input:", cleaned_string)
-
-# input = cleaned_string
-# print("user intent is: ", classify(input))
