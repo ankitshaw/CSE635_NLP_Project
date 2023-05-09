@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-"""inference_intent_classifier_trained_albert.ipynb
-"""
 from transformers import AlbertForSequenceClassification, AdamW, AutoTokenizer
 import torch
 import pandas as pd
@@ -78,7 +76,8 @@ def prob_to_class(x):
 
 def classify(user_input):
     global loaded_model
-    user_input = re.sub(r'[^\w\s\?]+', '', user_input)
+    user_input = re.sub(r'[^\w\s]+', '', user_input)
+    print("user_input: ",user_input)
     if loaded_model == None:
        loaded_model = load_trained_model(path_to_model, model, device)
     print("Predicting on test data...")
@@ -89,13 +88,3 @@ def classify(user_input):
         return "chitchat"
     else:
         return "topic"
-
-
-# input = "I like beaches"
-
-# # Remove all non-alphanumeric characters except for whitespace and question marks
-
-# # print("cleaned input:", cleaned_string)
-
-# input = cleaned_string
-# print("user intent is: ", classify(input))

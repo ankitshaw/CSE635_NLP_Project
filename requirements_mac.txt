@@ -21,3 +21,5 @@ spacy-entity-linker==1.0.3
 watchdog==3.0.0
 farm-haystack==1.16.1
 elasticsearch==7.17.9
+sentencepiece==0.1.99
+farm-haystack[elasticsearch]
