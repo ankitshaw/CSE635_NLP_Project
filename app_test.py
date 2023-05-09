@@ -1,33 +1,44 @@
 import streamlit as st
 from streamlit_chat import message
-from chitchat.chitchat import chitchat
+from chitchat.chitchat import chitchat, chitchat_batch
 import intent_classifier
 from nlp_pipeline import get_nel
-from wikibot.wiki_ir import TopicBot
-import evaluate
 from tqdm import tqdm
+# from wikibot.wiki_ir import TopicBot
+# from wikibot.wikibot import get_wiki_response
+import inference_intent_classifier_trained_albert
+from torch.utils.data import Dataset, DataLoader
+import evaluate
 
-import json
+from PIL import Image
 
-topicBot = TopicBot()
+# image = Image.open('img-removebg-preview.png')
+
+# st.image(image,width=300)
+def batch(iterable, n=20):
+    l = len(iterable)
+    for ndx in range(0, l, n):
+        yield iterable[ndx:min(ndx + n, l)]
 
 def get_response(prompt):
     #Call the dialog manager api to get the response for the prompt
     # message=prompt + ": Reply"
     #dialogue manager rule or model get the prompt and call individual generator
-    links = [] #get_nel(prompt)
-    # if intent_classifier.classify(prompt=prompt, topics=len(links)) == "chitchat":
-    # print("doing chitchat")
-    message = chitchat(prompt) #directly calling chitchat for testing
+    # links = get_nel(prompt)
+    # if inference_intent_classifier_trained_albert.classify(prompt) == "chitchat":
+        # print("doing chitchat")
+    message = chitchat_batch(prompt) #directly calling chitchat for testing
     # else:
-    #     #perform entity recoq, linker, find relevant facts, perform paraphrasing and return
-    #     # return message
-    #     print("doing wiki")
-    #     message = topicBot.generator(prompt, links)
-    #     if message == "":
-    #         message = chitchat(prompt)
-
+        #perform entity recoq, linker, find relevant facts, perform paraphrasing and return
+        # print("doing wiki")
+        # message = topicBot.generator(prompt, links)
+        # message = get_wiki_response(prompt)
+        # if message == "":
+        #     message = chitchat(prompt)
     return message
+
+# def get_intent():
+
 
 def processpara(paras):
     result ={}
@@ -68,36 +79,44 @@ def squad ():
 def bleu_inference():
     import pandas as pd
     count = 0
-    df = pd.read_csv("chitchat/data_chitchat.csv")
-    bot_out = []
-    for index, row in tqdm(df.iterrows()):
+    df = pd.read_csv("chitchat/emp_data.csv")
+    # data = CustomDataset(df)
+    # loader = DataLoader(data,batch_size=100)
+    # return
+    bot_out = []#["" for i in range(df.size)]
+    # print(len(bot_out))
+
+    for btch in tqdm(batch(df['send'].tolist())):
+    # for index, row in tqdm(df.iterrows()):
+        # print(btch)
         count += 1
-        out = ""
-        try:
-            out = get_response(row['in'])
-        except:
-            out="I didn't got that. I am sorry"
+        out = []
+        # try:
+        print(len(btch))
+        out = get_response(btch)
+        # except:
+        #     out=["I didn't got that. I am sorry"]
        
         # print(out)
-        print(count)
+        # print(count)
         # df['bot_out']= out
-        bot_out.append(out)
+        # print(out)
+        bot_out.extend(out)
         # count += 1
-    df = pd.DataFrame({'bot_out':bot_out})
-    df.to_csv("bleu.csv")
+    df['bot_out']=bot_out
+    df.to_csv("emp_data_out.csv")
 
 def bleu():
     import pandas as pd
     bleu = evaluate.load("bleu")
-    df = pd.read_csv("chitchat/data_chitchat.csv")
+    df = pd.read_csv("chitchat/emp_data_out.csv")
     bot_out = []
     out = []
     for index, row in df.iterrows():
-        if not pd.isnull(row['bot_out']) and not pd.isnull(row['out']):
-            out.append(row['out'])
-            bot_out.append(row['bot_out'])
-    print(len(bot_out))
+        if not pd.isnull(row['bot_out']) and not pd.isnull(row['recv']):
+            out.append(row['recv'].strip())
+            bot_out.append(row['bot_out'].strip())
     results = bleu.compute(predictions=bot_out,references=out)
     print(results)
 
-bleu_inference()
+bleu()
