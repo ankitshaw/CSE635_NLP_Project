@@ -1,13 +1,13 @@
-import streamlit as st
-from streamlit_chat import message
+# import streamlit as st
+# from streamlit_chat import message
 from chitchat.chitchat import chitchat, chitchat_batch
-import intent_classifier
-from nlp_pipeline import get_nel
+# import intent_classifier
+# from nlp_pipeline import get_nel
 from tqdm import tqdm
 # from wikibot.wiki_ir import TopicBot
 # from wikibot.wikibot import get_wiki_response
-import inference_intent_classifier_trained_albert
-from torch.utils.data import Dataset, DataLoader
+# import intent_classifier_albert
+# from torch.utils.data import Dataset, DataLoader
 import evaluate
 
 from PIL import Image
@@ -106,10 +106,40 @@ def bleu_inference():
     df['bot_out']=bot_out
     df.to_csv("emp_data_out.csv")
 
-def bleu():
+def bleu_inference_cc():
     import pandas as pd
-    bleu = evaluate.load("bleu")
-    df = pd.read_csv("chitchat/emp_data_out.csv")
+    count = 0
+    df = pd.read_csv("chitchat/data_chitchat.csv")
+    # data = CustomDataset(df)
+    # loader = DataLoader(data,batch_size=100)
+    # return
+    bot_out = []#["" for i in range(df.size)]
+    # print(len(bot_out))
+
+    for btch in tqdm(batch(df['in'].tolist())):
+    # for index, row in tqdm(df.iterrows()):
+        # print(btch)
+        count += 1
+        out = []
+        # try:
+        print(len(btch))
+        out = get_response(btch)
+        # except:
+        #     out=["I didn't got that. I am sorry"]
+       
+        # print(out)
+        # print(count)
+        # df['bot_out']= out
+        # print(out)
+        bot_out.extend(out)
+        # count += 1
+    df['bot_out']=bot_out
+    df.to_csv("cc_data_out.csv")
+
+def evaluator(metric, dataset):
+    import pandas as pd
+    bleu = evaluate.load(metric)
+    df = pd.read_csv(dataset)
     bot_out = []
     out = []
     for index, row in df.iterrows():
@@ -119,4 +149,51 @@ def bleu():
     results = bleu.compute(predictions=bot_out,references=out)
     print(results)
 
-bleu()
+def bert_score(metric, dataset):
+    import pandas as pd
+    bleu = evaluate.load(metric)
+    df = pd.read_csv(dataset)
+    bot_out = []
+    out = []
+    for index, row in df.iterrows():
+        if not pd.isnull(row['bot_out']) and not pd.isnull(row['recv']):
+            out.append(row['recv'].strip())
+            bot_out.append(row['bot_out'].strip())
+    results = bleu.compute(predictions=bot_out,references=out,lang="en")
+    print(results)
+
+def bleurt_score(metric, dataset):
+    import pandas as pd
+    bleu = evaluate.load(metric, module_type="metric")
+    df = pd.read_csv(dataset)
+    bot_out = []
+    out = []
+    for index, row in df.iterrows():
+        if not pd.isnull(row['bot_out']) and not pd.isnull(row['recv']):
+            out.append(row['recv'].strip())
+            bot_out.append(row['bot_out'].strip())
+    results = bleu.compute(predictions=bot_out,references=out)
+    print(results)
+
+def perplexity(metric, dataset):
+    import pandas as pd
+    bleu = evaluate.load(metric,module_type="metric")
+    df = pd.read_csv(dataset)
+    bot_out = []
+    out = []
+    for index, row in df.iterrows():
+        if not pd.isnull(row['bot_out']) and not pd.isnull(row['recv']):
+            out.append(row['recv'].strip())
+            bot_out.append(row['bot_out'].strip())
+    results = bleu.compute(model_id='gpt2',
+                             add_start_token=False,
+                             predictions=bot_out)
+    print(results)
+
+
+# evaluator("bleu","chitchat/emp_data_out.csv")
+# bert_score("bertscore","chitchat/emp_data_out.csv")
+# evaluator("rouge","chitchat/emp_data_out.csv")
+# bleurt_score("bleurt","chitchat/emp_data_out.csv")
+# perplexity("perplexity","chitchat/emp_data_out.csv")
+bleu_inference_cc()
