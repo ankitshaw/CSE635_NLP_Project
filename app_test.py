@@ -68,7 +68,9 @@ def squad_inference():
         output=get_response(que)
         que = []
         ans.extend(output)
-    return ans
+    df = pd.DataFrame({'bot_out':ans})
+    df.to_csv("bot_out.csv")
+    # return ans
 
 
 def squad ():
@@ -213,10 +215,27 @@ def perplexity(metric, dataset):
                              predictions=bot_out)
     print(results)
 
+def perplexity_wiki(metric, dataset):
+    import pandas as pd
+    bleu = evaluate.load(metric,module_type="metric")
+    df = pd.read_csv(dataset)
+    bot_out = []
+    out = []
+    for index, row in df.iterrows():
+        if not pd.isnull(row['bot_out']):
+            # out.append(row['recv'].strip())
+            bot_out.append(row['bot_out'].strip())
+    results = bleu.compute(model_id='gpt2',
+                             add_start_token=False,
+                             predictions=bot_out)
+    print(results)
+
 
 # evaluator("bleu","chitchat/emp_data_out.csv")
 # bert_score("bertscore","chitchat/emp_data_out.csv")
 # evaluator("rouge","chitchat/emp_data_out.csv")
 # bleurt_score("bleurt","chitchat/emp_data_out.csv")
 # perplexity("perplexity","chitchat/emp_data_out.csv")
-squad()
+
+perplexity_wiki("perplexity","wiki_out_full.csv")
+# squad()
