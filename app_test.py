@@ -5,10 +5,11 @@ from chitchat.chitchat import chitchat, chitchat_batch
 # from nlp_pipeline import get_nel
 from tqdm import tqdm
 # from wikibot.wiki_ir import TopicBot
-# from wikibot.wikibot import get_wiki_response
+from wikibot.wikibot import get_wiki_batch_response
 # import intent_classifier_albert
 # from torch.utils.data import Dataset, DataLoader
 import evaluate
+import json
 
 from PIL import Image
 
@@ -27,12 +28,12 @@ def get_response(prompt):
     # links = get_nel(prompt)
     # if inference_intent_classifier_trained_albert.classify(prompt) == "chitchat":
         # print("doing chitchat")
-    message = chitchat_batch(prompt) #directly calling chitchat for testing
+    # message = chitchat_batch(prompt) #directly calling chitchat for testing
     # else:
         #perform entity recoq, linker, find relevant facts, perform paraphrasing and return
         # print("doing wiki")
         # message = topicBot.generator(prompt, links)
-        # message = get_wiki_response(prompt)
+    message = get_wiki_batch_response(prompt)
         # if message == "":
         #     message = chitchat(prompt)
     return message
@@ -54,27 +55,49 @@ def processpara(paras):
             result[qas['id']] = output
     return result
 
+def squad_inference():
+    import pandas as pd
+    df = pd.read_csv('wiki_in.csv')
+    queries = df['bot_in'].to_list()
+    ans = []
+    que = []
+    for query in queries:
+        que.append(query)
+        if len(que) != 20:
+            continue
+        output=get_response(que)
+        que = []
+        ans.extend(output)
+    return ans
+
 
 def squad ():
+    import pandas as pd
     file = open("dev-v2.0.json")
     data = json.load(file)
     datas = data['data']
     result = {}
-
+    ques = []
+    bot_out = []
     for data in datas:
         for para in data['paragraphs']:
             for qas in para['qas']:
                 question = qas['question']
-                print(question)
-                output = ""
-                try:
-                    output=get_response(question)
-                except:
-                    output="I didn't got that. I am sorry"
-                result[qas['id']] = output
+                ques.append(question)
+                if len(ques) != 20:
+                    continue
+                # print(question)
+                output = []
+                # output=get_response(ques)
+                # result[qas['id']] = output
+                # bot_out.extend(output)
+                # ques = []
 
-    with open('result.json', 'w') as fp:
-        json.dump(result, fp)
+    # with open('result.json', 'w') as fp:
+    #     json.dump(result, fp)
+    df = pd.DataFrame({'bot_in':ques})
+    df.to_csv("wiki_in.csv")
+
 
 def bleu_inference():
     import pandas as pd
@@ -196,4 +219,4 @@ def perplexity(metric, dataset):
 # evaluator("rouge","chitchat/emp_data_out.csv")
 # bleurt_score("bleurt","chitchat/emp_data_out.csv")
 # perplexity("perplexity","chitchat/emp_data_out.csv")
-bleu_inference_cc()
+squad()

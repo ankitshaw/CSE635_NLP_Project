@@ -22,4 +22,17 @@ def get_wiki_response(query):
     print(result)
     return result['answers'][0].answer
 
+def get_wiki_batch_response(queries):
+    result = pipe.run_batch(
+        queries=queries, params={"Retriever": {"top_k": 3}}
+    )
+    # print(result['answers'])
+    ans = []
+    for res in result['answers']:
+        # print(res)
+        ans.append(res[0].answer)
+    
+    return ans
+    # return result['answers'][0].answer
 # print(get_response("I will be visiting India in December?"))
+# print(get_wiki_batch_response(["who is babur?","what is answer to life"]))

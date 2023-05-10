@@ -1,4 +1,6 @@
 from transformers import BlenderbotTokenizer, BlenderbotForConditionalGeneration
+import torch
+
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 mname = "facebook/blenderbot-400M-distill"
 model = BlenderbotForConditionalGeneration.from_pretrained(mname).to(device)
