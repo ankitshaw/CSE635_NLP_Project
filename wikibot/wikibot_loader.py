@@ -1,4 +1,4 @@
-from util import get_document_store
+from .util import get_document_store
 import pandas as pd
 from haystack import Document
 import ast

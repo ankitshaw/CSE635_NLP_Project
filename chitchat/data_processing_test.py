@@ -19,6 +19,8 @@ for index,row in df.iterrows():
         temp = temp + " " + text['text']
     prompt.append(temp)
     
+    # print(temp)
+    # break
     temp = ""
     msg2 = None
     if len(messages) >= 2:
@@ -26,11 +28,17 @@ for index,row in df.iterrows():
     
     if msg2:
         for text in msg2:
-            temp = text['text'] + " " + temp
+            temp = temp + " " + text['text']
+    else:
+        del ind[-1]
+        del prompt[-1]
+        continue
     out.append(temp)
+    # print(temp)
+
     # print(indexprompt[-1],out[-1])
     # break
-print(len(prompt),len(out), len(ind))
+# print(len(prompt),len(out), len(ind))
 
 df = pd.DataFrame({'id':ind,'in':prompt,'out':out})
-df.to_csv("data2.csv")
+df.to_csv("data_cc.csv")
